@@ -18,8 +18,8 @@ class UserBase(BaseModel):
 
 
 class UserBaseForPatch(BaseModel):
-    username: Optional[str]
-    email: Optional[str]
+    username: Optional[str] = None
+    email: Optional[str] = None
 
 
 class UserDisplay(BaseModel):
