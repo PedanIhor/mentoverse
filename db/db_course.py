@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from sqlalchemy.orm.session import Session
 from db.models import DbCourse
 from schemas import CourseBase
@@ -17,12 +18,15 @@ def create_course(db: Session, request: CourseBase):
 
 def get_course(db: Session, id: int):
     course = db.query(DbCourse).filter(DbCourse.id == id).first()
-    # Handle errors
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with {id} not found!")
     return course
+
 
 def delete_course(db: Session, id: int):
     course = db.query(DbCourse).filter(DbCourse.id == id).first()
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with {id} not found!")
     db.delete(course)
     db.commit()
     return "OK"
-
