@@ -18,8 +18,8 @@ class UserBase(BaseModel):
 
 
 class UserBaseForPatch(BaseModel):
-    username: Optional[str]
-    email: Optional[str]
+    username: Optional[str] = None
+    email: Optional[str] = None
 
 
 class UserDisplay(BaseModel):
@@ -31,26 +31,17 @@ class UserDisplay(BaseModel):
         from_attributes = True
 
 
-# User inside ArticleDisplay
-class User(BaseModel):
-    id: int
-    username: str
-
-    class Config:
-        from_attributes = True
-
-
 class CourseBase(BaseModel):
     title: str
     description: str
-    creator_id: int
+    owner_id: int
 
 
 class CourseDisplay(BaseModel):
     id: int
     title: str
     description: str
-    owner: User
+    owner_id: int
 
     class Config:
         from_attributes = True
