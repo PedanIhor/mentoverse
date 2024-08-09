@@ -16,6 +16,11 @@ def create_course(db: Session, request: CourseBase):
     return  course
 
 
+def get_courses_by_owner_id(db: Session, owner_id: int):
+    courses = db.query(DbCourse).filter(DbCourse.owner_id == owner_id)
+    return courses
+
+
 def get_course(db: Session, id: int):
     course = db.query(DbCourse).filter(DbCourse.id == id).first()
     if not course:
