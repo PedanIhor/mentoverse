@@ -11,7 +11,7 @@ class DbUser(Base):
     username = Column(String)
     email = Column(String)
     password = Column(String)
-    courses = relationship("DBCourse", back_populates='user')
+    courses = relationship("DbCourse", back_populates='owner')
 
 
 class DbCourse(Base):
