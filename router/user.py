@@ -5,7 +5,7 @@ from schemas import UserBase, UserDisplay, UserBaseForPatch
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 from typing import Optional
-from fastapi.exceptions import ResponseValidationError
+from auth.oauth2 import oauth2_schema
 
 router = APIRouter(
     prefix='/user',
@@ -38,7 +38,7 @@ def get_user_by_id(id: int, response: Response, db: Session = Depends(get_db)):
 
 # Update user
 @router.put('/{id}', response_model=UserDisplay)
-def update_user(request: UserBase, id: int, db: Session = Depends(get_db)):
+def update_user(request: UserBase, id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_schema)):
     return db_user.update_user(db, id, request)
 
 
