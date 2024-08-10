@@ -30,7 +30,13 @@ def delete_course(id: int, db: Session = Depends(get_db)):
     return db_course.delete_course(db, id)
 
 
+# Get all courses
+@router.get("/", response_model=List[CourseDisplay])
+def get_all_courses(db: Session = Depends(get_db)):
+    return db_course.get_all_courses(db)
+
+
 # Get all courses by owner id
-@router.get('/', response_model=List[CourseDisplay])
+@router.get('/owner-id/{owner_id}', response_model=List[CourseDisplay])
 def get_courses_by_owner_id(owner_id: int, db: Session = Depends(get_db)):
     return db_course.get_courses_by_owner_id(db, owner_id)

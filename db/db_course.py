@@ -16,12 +16,15 @@ def create_course(db: Session, request: CourseBase):
     db.add(course)
     db.commit()
     db.refresh(course)
-    return  course
+    return course
+
+
+def get_all_courses(db: Session):
+    return db.query(DbCourse).all()
 
 
 def get_courses_by_owner_id(db: Session, owner_id: int):
-    courses = db.query(DbCourse).filter(DbCourse.owner_id == owner_id)
-    return courses
+    return db.query(DbCourse).filter(DbCourse.owner_id == owner_id)
 
 
 def get_course(db: Session, id: int):
