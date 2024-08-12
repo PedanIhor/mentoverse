@@ -8,4 +8,4 @@ class Hash:
         return pwd_ctx.hash(password)
 
     def verify(hashed_password, plain_password):
-        return pwd_ctx.verify(hashed_password, plain_password)
+        return pwd_ctx.verify(plain_password, hashed_password)
