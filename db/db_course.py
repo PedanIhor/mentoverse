@@ -30,14 +30,14 @@ def get_courses_by_owner_id(db: Session, owner_id: int):
 def get_course(db: Session, id: int):
     course = db.query(DbCourse).filter(DbCourse.id == id).first()
     if not course:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with {id} not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with id={id} not found!")
     return course
 
 
 def delete_course(db: Session, id: int):
     course = db.query(DbCourse).filter(DbCourse.id == id).first()
     if not course:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with {id} not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with id={id} not found!")
     db.delete(course)
     db.commit()
     return "OK"
