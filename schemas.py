@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 # Course inside UserDisplay
 class Course(BaseModel):
+    id: int
     title: str
     description: str
 
@@ -23,6 +24,7 @@ class UserBaseForPatch(BaseModel):
 
 
 class UserDisplay(BaseModel):
+    id: int
     username: str
     email: str
     courses: List[Course] = []
@@ -32,9 +34,10 @@ class UserDisplay(BaseModel):
 
 
 class CourseBase(BaseModel):
-    title: str
-    description: str
-    owner_id: int
+    id: int | None = None
+    title: str | None
+    description: str | None
+    owner_id: int | None = None
 
 
 class CourseDisplay(BaseModel):

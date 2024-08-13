@@ -18,6 +18,20 @@ def create_course(request: CourseBase, db: Session = Depends(get_db)):
     return db_course.create_course(db, request)
 
 
+# Edit course
+@router.put('/{id}', response_model=CourseDisplay)
+def put_course(id: int, request: CourseBase, db: Session = Depends(get_db)):
+    db_course.update_course_by_request(db, id, request)
+    return db_course.get_course(db, id)
+
+
+@router.patch('/{id}', response_model=CourseDisplay)
+def patch_course(id: int, request: CourseBase, db: Session = Depends(get_db)):
+    updates = request.model_dump(exclude_unset=True)
+    db_course.update_course_by_dict(db, id, updates)
+    return db_course.get_course(db, id)
+
+
 # Get course with id
 @router.get('/{id}', response_model=Optional[CourseDisplay])
 def get_course_by_id(id: int, db: Session = Depends(get_db)):
