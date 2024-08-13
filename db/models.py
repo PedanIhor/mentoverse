@@ -8,8 +8,8 @@ from db.database import Base
 class DbUser(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String)
-    email = Column(String)
+    username = Column(String, index=True, unique=True)
+    email = Column(String, index=True, unique=True)
     password = Column(String)
     courses = relationship("DbCourse", back_populates='owner')
 
