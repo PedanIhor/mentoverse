@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm.session import Session
+from sqlalchemy.orm.query import Query
 from db.models import DbCourse
 from exceptions import MentoverseException
 from schemas import CourseBase
@@ -41,3 +42,26 @@ def delete_course(db: Session, id: int):
     db.delete(course)
     db.commit()
     return "OK"
+
+
+def update_course_with_changes(db: Session, course: Query, updates: dict[str, any]):
+    course.update(updates)
+    db.commit()
+
+
+def update_course_by_dict(db: Session, id: int, updates: dict[str, any]):
+    course_query = db.query(DbCourse).filter(DbCourse.id == id)
+    if not course_query.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with id={id} not found!")
+    update_course_with_changes(db, course_query, updates)
+
+
+def update_course_by_request(db: Session, id: int, request: CourseBase):
+    course_query = db.query(DbCourse).filter(DbCourse.id == id)
+    if not course_query.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with id={id} not found!")
+
+    return update_course_with_changes(db, course_query, {
+        DbCourse.title: request.title,
+        DbCourse.description: request.description
+    })
