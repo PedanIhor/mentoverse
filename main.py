@@ -1,12 +1,13 @@
 from fastapi import FastAPI, Request
 from exceptions import MentoverseException
-from router import user, course
+from router import user, course, file
 from db import models
 from db.database import engine
 from fastapi.responses import JSONResponse
 from auth import authentication
 
 app = FastAPI()
+app.include_router(file.router)
 app.include_router(authentication.router)
 app.include_router(user.router)
 app.include_router(course.router)
@@ -18,5 +19,6 @@ def mentoverse_exception_handler(request: Request, exc: MentoverseException):
         status_code=418,
         content={'detail': exc.name}
     )
+
 
 models.Base.metadata.create_all(engine)
