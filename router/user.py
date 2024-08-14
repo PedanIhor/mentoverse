@@ -37,18 +37,16 @@ def get_user_by_id(id: int, response: Response, db: Session = Depends(get_db)):
 
 
 # Update user
-@router.put('/{id}', response_model=UserDisplay)
+@router.put('/', response_model=UserDisplay)
 def update_user(
         request: UserBase,
-        id: int,
         db: Session = Depends(get_db),
         current_user: UserBase = Depends(get_current_user)
 ):
     user = db_user.get_user_by_username(db, current_user.username)
-    if user.id is id:
-        return db_user.update_user(db, id, request)
-    else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Id is not equal to current_user.id')
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Couldn't find the user entity in the db")
+    return db_user.update_user(db, user.id, request)
 
 
 @router.patch('/', response_model=UserDisplay)
