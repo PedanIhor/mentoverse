@@ -27,41 +27,53 @@ def get_all_users(db: Session = Depends(get_db)):
 
 # Read user with id
 @router.get('/{id}', response_model=Optional[UserDisplay])
-def get_user_by_id(id: int, response: Response, db: Session = Depends(get_db)):
+def get_user_by_id(id: int, db: Session = Depends(get_db)):
     user = db_user.get_user_by_id(db, id)
     if user is not None:
         return user
     else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return None
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
 
 # Update user
-@router.put('/{id}', response_model=UserDisplay)
+@router.put('/', response_model=UserDisplay)
 def update_user(
         request: UserBase,
-        id: int,
         db: Session = Depends(get_db),
         current_user: UserBase = Depends(get_current_user)
 ):
     user = db_user.get_user_by_username(db, current_user.username)
-    if user.id is id:
-        return db_user.update_user(db, id, request)
-    else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Id is not equal to current_user.id')
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Couldn't find the user entity in the db")
+    return db_user.update_user(db, user.id, request)
 
 
-@router.patch('/{id}', response_model=UserDisplay)
-def update_user_by_patch(request: UserBaseForPatch, id: int, db: Session = Depends(get_db)):
-    return db_user.update_by_patch(db, id, request)
+@router.patch('/', response_model=UserDisplay)
+def update_user_by_patch(
+        request: UserBaseForPatch,
+        db: Session = Depends(get_db),
+        current_user: UserBase = Depends(get_current_user)
+):
+    user = db_user.get_user_by_username(db, current_user.username)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Couldn't find the user entity in the db")
+    db_user.update_by_patch(db, user.id, request)
+    return db_user.get_user_by_id(db, user.id)
 
 
-@router.post('/{id}/password', response_model=UserDisplay)
-def update_password(password: str, id: int, db: Session = Depends(get_db)):
-    return db_user.update_user_password(db, id, password)
+@router.post('/password', response_model=UserDisplay)
+def update_password(
+        password: str,
+        db: Session = Depends(get_db),
+        current_user: UserBase = Depends(get_current_user)):
+    user = db_user.get_user_by_username(db, current_user.username)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404)
+    return db_user.update_user_password(db, user.id, password)
 
 
 # Delete user
-@router.delete('/{id}')
-def delete_user(id: int, db: Session = Depends(get_db)):
-    return db_user.delete_user(db, id)
+@router.delete('/')
+def delete_user(db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
+    user = db_user.get_user_by_username(db, current_user.username)
+    return db_user.delete_user(db, user.id)
