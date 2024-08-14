@@ -46,7 +46,16 @@ def put_course(
 
 
 @router.patch('/{id}', response_model=CourseDisplay)
-def patch_course(id: int, request: CourseBase, db: Session = Depends(get_db)):
+def patch_course(
+        id: int,
+        request: CourseBase,
+        db: Session = Depends(get_db),
+        current_user: UserBase = Depends(get_current_user)
+):
+    user: UserDisplay = db_user.get_user_by_username(db, current_user.username)
+    courses_ids = map(_map_user_courses_to_ids, user.courses)
+    if id not in courses_ids:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     updates = request.model_dump(exclude_unset=True)
     db_course.update_course_by_dict(db, id, updates)
     return db_course.get_course(db, id)
