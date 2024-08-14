@@ -2,17 +2,14 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.query import Query
 from db.models import DbCourse
-from exceptions import MentoverseException
 from schemas import CourseBase
 
 
-def create_course(db: Session, request: CourseBase):
-    if "mentoverse" in request.title or "mentoverse" in request.description:
-        raise MentoverseException("Don't use mentoverse platform name in your course!")
+def create_course(db: Session, request: CourseBase, owner_id: int):
     course = DbCourse(
         title=request.title,
         description=request.description,
-        owner_id=request.owner_id
+        owner_id=owner_id
     )
     db.add(course)
     db.commit()

@@ -1,10 +1,12 @@
-from db import db_course
+from db import db_course, db_user
 from db.database import get_db
 from typing import List
-from schemas import CourseBase, CourseDisplay
-from fastapi import APIRouter, Depends
+from schemas import CourseBase, CourseDisplay, UserBase
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional
+from auth.oauth2 import get_current_user
+from exceptions import MentoverseException
 
 router = APIRouter(
     prefix='/course',
@@ -14,8 +16,17 @@ router = APIRouter(
 
 # Create course
 @router.post('/', response_model=CourseDisplay)
-def create_course(request: CourseBase, db: Session = Depends(get_db)):
-    return db_course.create_course(db, request)
+def create_course(
+        request: CourseBase,
+        db: Session = Depends(get_db),
+        current_user: UserBase = Depends(get_current_user)
+):
+    if "mentoverse" in request.title or "mentoverse" in request.description:
+        raise MentoverseException("Don't use mentoverse platform name in your course!")
+    user = db_user.get_user_by_username(db, current_user.username)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Couldn't find a user for the token")
+    return db_course.create_course(db, request, user.id)
 
 
 # Edit course

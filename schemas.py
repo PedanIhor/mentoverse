@@ -34,10 +34,8 @@ class UserDisplay(BaseModel):
 
 
 class CourseBase(BaseModel):
-    id: int | None = None
     title: str | None
     description: str | None
-    owner_id: int | None = None
 
 
 class CourseDisplay(BaseModel):
