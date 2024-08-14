@@ -37,9 +37,8 @@ def put_course(
         db: Session = Depends(get_db),
         current_user: UserBase = Depends(get_current_user)
 ):
-    user: UserDisplay = db_user.get_user_by_username(db, current_user.username)
-    courses_ids = map(_map_user_courses_to_ids, user.courses)
-    if id not in courses_ids:
+    user = db_user.get_user_by_username(db, current_user.username)
+    if not _is_user_owner_of_course_id(id, user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     db_course.update_course_by_request(db, id, request)
     return db_course.get_course(db, id)
@@ -52,9 +51,8 @@ def patch_course(
         db: Session = Depends(get_db),
         current_user: UserBase = Depends(get_current_user)
 ):
-    user: UserDisplay = db_user.get_user_by_username(db, current_user.username)
-    courses_ids = map(_map_user_courses_to_ids, user.courses)
-    if id not in courses_ids:
+    user = db_user.get_user_by_username(db, current_user.username)
+    if not _is_user_owner_of_course_id(id, user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     updates = request.model_dump(exclude_unset=True)
     db_course.update_course_by_dict(db, id, updates)
@@ -69,7 +67,14 @@ def get_course_by_id(id: int, db: Session = Depends(get_db)):
 
 # Delete course
 @router.delete('/{id}')
-def delete_course(id: int, db: Session = Depends(get_db)):
+def delete_course(
+        id: int,
+        db: Session = Depends(get_db),
+        current_user: UserBase = Depends(get_current_user)
+):
+    user = db_user.get_user_by_username(db, current_user.username)
+    if not _is_user_owner_of_course_id(id, user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return db_course.delete_course(db, id)
 
 
@@ -87,3 +92,8 @@ def get_courses_by_owner_id(owner_id: int, db: Session = Depends(get_db)):
 
 def _map_user_courses_to_ids(course: Course):
     return course.id
+
+
+def _is_user_owner_of_course_id(course_id: int, user: UserDisplay):
+    courses_ids = map(_map_user_courses_to_ids, user.courses)
+    return course_id in courses_ids
