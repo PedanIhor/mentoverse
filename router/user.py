@@ -52,8 +52,17 @@ def update_user(
 
 
 @router.patch('/{id}', response_model=UserDisplay)
-def update_user_by_patch(request: UserBaseForPatch, id: int, db: Session = Depends(get_db)):
-    return db_user.update_by_patch(db, id, request)
+def update_user_by_patch(
+        request: UserBaseForPatch,
+        id: int,
+        db: Session = Depends(get_db),
+        current_user: UserBase = Depends(get_current_user)
+):
+    if id is current_user.id:
+        db_user.update_by_patch(db, id, request)
+        return db_user.get_user_by_id(db, id).first()
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Id is not equal to current_user.id')
 
 
 @router.post('/{id}/password', response_model=UserDisplay)
