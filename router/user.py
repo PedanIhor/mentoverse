@@ -73,6 +73,7 @@ def update_password(
 
 
 # Delete user
-@router.delete('/{id}')
-def delete_user(id: int, db: Session = Depends(get_db)):
-    return db_user.delete_user(db, id)
+@router.delete('/')
+def delete_user(db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
+    user = db_user.get_user_by_username(db, current_user.username)
+    return db_user.delete_user(db, user.id)
