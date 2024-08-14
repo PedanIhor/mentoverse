@@ -1,7 +1,7 @@
 from db import db_course, db_user
 from db.database import get_db
 from typing import List
-from schemas import CourseBase, CourseDisplay, UserBase
+from schemas import CourseBase, CourseDisplay, UserBase, UserDisplay, Course
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -31,7 +31,16 @@ def create_course(
 
 # Edit course
 @router.put('/{id}', response_model=CourseDisplay)
-def put_course(id: int, request: CourseBase, db: Session = Depends(get_db)):
+def put_course(
+        id: int,
+        request: CourseBase,
+        db: Session = Depends(get_db),
+        current_user: UserBase = Depends(get_current_user)
+):
+    user: UserDisplay = db_user.get_user_by_username(db, current_user.username)
+    courses_ids = map(_map_user_courses_to_ids, user.courses)
+    if id not in courses_ids:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     db_course.update_course_by_request(db, id, request)
     return db_course.get_course(db, id)
 
@@ -65,3 +74,7 @@ def get_all_courses(db: Session = Depends(get_db)):
 @router.get('/owner-id/{owner_id}', response_model=List[CourseDisplay])
 def get_courses_by_owner_id(owner_id: int, db: Session = Depends(get_db)):
     return db_course.get_courses_by_owner_id(db, owner_id)
+
+
+def _map_user_courses_to_ids(course: Course):
+    return course.id
