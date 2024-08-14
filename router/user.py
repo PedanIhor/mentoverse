@@ -27,13 +27,12 @@ def get_all_users(db: Session = Depends(get_db)):
 
 # Read user with id
 @router.get('/{id}', response_model=Optional[UserDisplay])
-def get_user_by_id(id: int, response: Response, db: Session = Depends(get_db)):
+def get_user_by_id(id: int, db: Session = Depends(get_db)):
     user = db_user.get_user_by_id(db, id)
     if user is not None:
         return user
     else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return None
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
 
 # Update user
