@@ -75,7 +75,8 @@ def delete_course(
     user = db_user.get_user_by_username(db, current_user.username)
     if not _is_user_owner_of_course_id(id, user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    return db_course.delete_course(db, id)
+    db_course.delete_course(db, id)
+    return {'message': 'OK'}
 
 
 # Get all courses

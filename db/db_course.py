@@ -38,7 +38,6 @@ def delete_course(db: Session, id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Course with id={id} not found!")
     db.delete(course)
     db.commit()
-    return "OK"
 
 
 def update_course_with_changes(db: Session, course: Query, updates: dict[str, any]):
