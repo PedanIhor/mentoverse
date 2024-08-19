@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from exceptions import MentoverseException
-from router import user, course
+from router import user, course, appointments
 from db import models
 from db.database import engine
 from fastapi.responses import JSONResponse
@@ -10,6 +10,7 @@ app = FastAPI()
 app.include_router(authentication.router)
 app.include_router(user.router)
 app.include_router(course.router)
+app.include_router(appointments.router)
 
 
 @app.exception_handler(MentoverseException)
