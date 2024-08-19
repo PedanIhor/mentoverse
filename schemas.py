@@ -46,3 +46,34 @@ class CourseDisplay(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AppointmentBase(BaseModel):
+    title: str
+    description: str
+    starts: int
+    ends: int
+    tutor_id: int
+    students_ids: List[int]
+
+
+class UserInAppointmentDisplay(BaseModel):
+    id: int
+    username: str
+    email: str
+
+    class Config:
+        from_attributes = True
+
+
+class AppointmentDisplay(BaseModel):
+    id: int
+    title: str
+    description: str
+    starts: str
+    ends: str
+    tutor_id: int
+    students: List[UserInAppointmentDisplay]
+
+    class Config:
+        from_attributes = True

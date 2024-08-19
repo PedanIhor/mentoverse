@@ -16,20 +16,57 @@ class Base(DeclarativeBase):
     pass
 
 
+appointments_students_table = Table(
+    'users_appointments',
+    Base.metadata,
+    Column("appointment_id", ForeignKey('appointments.id'), primary_key=True),
+    Column("student_id", ForeignKey('users.id'), primary_key=True)
+)
+
 
 class DbUser(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, index=True, unique=True)
-    email = Column(String, index=True, unique=True)
-    password = Column(String)
-    courses = relationship("DbCourse", back_populates='owner')
+    id = mapped_column(Integer, primary_key=True, index=True)
+    username = mapped_column(String, index=True, unique=True)
+    email = mapped_column(String, index=True, unique=True)
+    password = mapped_column(String)
+    courses = relationship("DbCourse", back_populates="owner")
+    appointments: Mapped[List['DbAppointment']] = relationship(
+        secondary=appointments_students_table,
+        back_populates="students"
+    )
+
+
+class DbAppointment(Base):
+    __tablename__ = 'appointments'
+    id = mapped_column(Integer, primary_key=True, index=True)
+    title = mapped_column(String)
+    description = mapped_column(String)
+    starts = mapped_column(TIMESTAMP)
+    ends = mapped_column(TIMESTAMP)
+    tutor_id = mapped_column(Integer, ForeignKey('users.id'), index=True)
+    students: Mapped[List['DbUser']] = relationship(
+        secondary=appointments_students_table,
+        back_populates="appointments"
+    )
+
+    @validates('title')
+    def validate_title(self, key, value):
+        if len(value) > 60:
+            raise DbException("title must be less or equal 60 symbols")
+        return value
+
+    @validates('description')
+    def validate_description(self, key, value):
+        if len(value) > 180:
+            raise DbException("description must be less or equal 180 symbols")
+        return value
 
 
 class DbCourse(Base):
     __tablename__ = 'courses'
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
-    description = Column(String)
-    owner_id = Column(Integer, ForeignKey('users.id'))
-    owner = relationship("DbUser", back_populates='courses')
+    id = mapped_column(Integer, primary_key=True, index=True)
+    title = mapped_column(String)
+    description = mapped_column(String)
+    owner_id = mapped_column(Integer, ForeignKey('users.id'), index=True)
+    owner: Mapped["DbUser"] = relationship(back_populates="courses")
