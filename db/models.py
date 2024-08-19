@@ -1,8 +1,20 @@
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import Integer, String, Boolean
-from sqlalchemy import Column
-from db.database import Base
+from sqlalchemy.orm import (
+    relationship,
+    Mapped,
+    validates,
+    mapped_column,
+    DeclarativeBase,
+)
+from sqlalchemy import Table, Column, TIMESTAMP
+from db.db_exceptions import DbException
+from typing import List
+
+
+class Base(DeclarativeBase):
+    pass
+
 
 
 class DbUser(Base):
