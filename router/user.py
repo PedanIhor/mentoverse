@@ -2,7 +2,7 @@ from db import db_user
 from db.database import get_db
 from typing import List
 from schemas import UserBase, UserDisplay, UserBaseForPatch
-from fastapi import APIRouter, Depends, Response, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional
 from auth.oauth2 import get_current_user

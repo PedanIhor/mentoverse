@@ -24,21 +24,21 @@ def get_all_users(db: Session):
 def get_user_by_id(db: Session, id: int):
     user = db.query(DbUser).filter(DbUser.id == id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with {id} not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} not found!")
     return user
 
 
 def get_user_by_username(db: Session, username: str):
     user = db.query(DbUser).filter(DbUser.username == username).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with {username} not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with username: {username} not found!")
     return user
 
 
 def update_user_with_changes(db: Session, id: int, changes: dict):
     user = db.query(DbUser).filter(DbUser.id == id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with {id} not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} not found!")
     user.update(changes)
     db.commit()
     return user.first()
