@@ -25,14 +25,7 @@ def create_appointment(db: Session, request: AppointmentBase):
 
 # Get all user's appointments
 def get_users_appointments(db: Session, user_id: int):
-    as_tutor = db.query(DbAppointment).filter(
-        DbAppointment.tutor_id == user_id
+    return db.query(DbAppointment).filter(
+        DbAppointment.tutor_id == user_id or DbAppointment.students.any(id=user_id)
     ).all()
-    as_student = db.query(DbAppointment).filter(
-        DbAppointment.students.any(id=user_id)
-    ).all()
-    return as_tutor + as_student
 
-    # return db.query(DbAppointment).filter(
-    #     DbAppointment.tutor_id == user_id or DbAppointment.students.any(id=user_id)
-    # ).all()
