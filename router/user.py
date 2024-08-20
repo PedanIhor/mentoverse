@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 # Create user
-@router.post('/', response_model=UserDisplay)
+@router.post('/', response_model=UserDisplay, status_code=status.HTTP_201_CREATED)
 def create_user(request: UserBase, db: Session = Depends(get_db)):
     return db_user.create_user(db, request)
 
@@ -26,7 +26,7 @@ def get_all_users(db: Session = Depends(get_db)):
 
 
 # Read user with id
-@router.get('/{id}', response_model=Optional[UserDisplay])
+@router.get('/{id}', response_model=UserDisplay)
 def get_user_by_id(id: int, db: Session = Depends(get_db)):
     user = db_user.get_user_by_id(db, id)
     if user is not None:
@@ -73,7 +73,7 @@ def update_password(
 
 
 # Delete user
-@router.delete('/')
+@router.delete('/', status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
     user = db_user.get_user_by_username(db, current_user.username)
     return db_user.delete_user(db, user.id)

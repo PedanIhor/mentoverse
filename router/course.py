@@ -15,7 +15,11 @@ router = APIRouter(
 
 
 # Create course
-@router.post('/', response_model=CourseDisplay)
+@router.post(
+    '/',
+    response_model=CourseDisplay,
+    status_code=status.HTTP_201_CREATED
+)
 def create_course(
         request: CourseBase,
         db: Session = Depends(get_db),
@@ -60,13 +64,13 @@ def patch_course(
 
 
 # Get course with id
-@router.get('/{id}', response_model=Optional[CourseDisplay])
+@router.get('/{id}', response_model=CourseDisplay)
 def get_course_by_id(id: int, db: Session = Depends(get_db)):
     return db_course.get_course(db, id)
 
 
 # Delete course
-@router.delete('/{id}')
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_course(
         id: int,
         db: Session = Depends(get_db),
@@ -76,7 +80,6 @@ def delete_course(
     if not _is_user_owner_of_course_id(id, user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     db_course.delete_course(db, id)
-    return {'message': 'OK'}
 
 
 # Get all courses

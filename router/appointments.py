@@ -24,7 +24,7 @@ def get_user_appointments(
 
 
 # Create an appointment
-@router.post('/', response_model=AppointmentDisplay)
+@router.post('/', response_model=AppointmentDisplay, status_code=status.HTTP_201_CREATED)
 def create_appointment(
         request: AppointmentBase,
         db: Session = Depends(get_db),

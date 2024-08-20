@@ -12,8 +12,11 @@ router = APIRouter(
 )
 
 
-@router.post('/token')
-def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@router.post('/token', status_code=status.HTTP_201_CREATED)
+def get_token(
+        request: OAuth2PasswordRequestForm = Depends(),
+        db: Session = Depends(get_db)
+):
     user = db.query(models.DbUser).filter(models.DbUser.username == request.username).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid credentials")

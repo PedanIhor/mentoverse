@@ -68,7 +68,6 @@ def delete_user(db: Session, id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with {id} not found!")
     db.delete(user)
     db.commit()
-    return "OK"
 
 
 def map_patch_model(model: UserBaseForPatch):
