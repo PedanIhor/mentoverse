@@ -2,7 +2,7 @@ from sqlalchemy.orm.session import Session
 from db.hash import Hash
 from db.models import DbUser
 from schemas import UserBase, UserBaseForPatch
-from fastapi import HTTPException, status
+from db.db_exceptions import DbException, DbExceptionReason
 
 
 def create_user(db: Session, request: UserBase):
@@ -24,21 +24,30 @@ def get_all_users(db: Session):
 def get_user_by_id(db: Session, id: int):
     user = db.query(DbUser).filter(DbUser.id == id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} not found!")
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
+            detail=f"User with id: {id} not found!"
+        )
     return user
 
 
 def get_user_by_username(db: Session, username: str):
     user = db.query(DbUser).filter(DbUser.username == username).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with username: {username} not found!")
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
+            detail=f"User with username: {username} not found!"
+        )
     return user
 
 
 def update_user_with_changes(db: Session, id: int, changes: dict):
     user = db.query(DbUser).filter(DbUser.id == id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id: {id} not found!")
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
+            detail=f"User with id: {id} not found!"
+        )
     user.update(changes)
     db.commit()
     return user.first()
@@ -65,7 +74,10 @@ def update_user_password(db: Session, id: int, password: str):
 def delete_user(db: Session, id: int):
     user = db.query(DbUser).filter(DbUser.id == id).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with {id} not found!")
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
+            detail=f"User with id: {id} not found!"
+        )
     db.delete(user)
     db.commit()
 

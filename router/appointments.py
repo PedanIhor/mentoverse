@@ -5,6 +5,7 @@ from auth.oauth2 import get_current_user
 from schemas import AppointmentBase, AppointmentDisplay, UserBase
 from db import db_appointment, db_user
 from typing import List
+from helpers.db_action_wrapper import try_db_action
 
 router = APIRouter(
     prefix='/appointments',
@@ -17,10 +18,10 @@ def get_user_appointments(
         db: Session = Depends(get_db),
         current_user: UserBase = Depends(get_current_user),
 ):
+    def action():
     user = db_user.get_user_by_username(db, current_user.username)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return db_appointment.get_users_appointments(db, user.id)
+    return try_db_action(action)
 
 
 # Create an appointment

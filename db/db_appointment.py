@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from schemas import AppointmentBase, UserBase
+from schemas import AppointmentBase
 from db.models import DbAppointment, DbUser
-from typing import List
+from db.db_exceptions import DbException, DbExceptionReason
 
 
 # Create an appointment
