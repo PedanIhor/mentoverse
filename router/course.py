@@ -1,12 +1,11 @@
-from db import db_course, db_user
+from db import db_course
 from db.database import get_db
 from typing import List
-from schemas import CourseBase, CourseDisplay, UserBase, UserDisplay, Course
+from schemas import CourseBase, CourseDisplay, CourseBaseForPatch
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import Optional
-from auth.oauth2 import get_current_user
-from exceptions import MentoverseException
+from auth.oauth2 import get_current_user, CurrentUser
+from helpers.db_action_wrapper import try_db_action
 
 router = APIRouter(
     prefix='/course',
@@ -15,18 +14,19 @@ router = APIRouter(
 
 
 # Create course
-@router.post('/', response_model=CourseDisplay)
+@router.post(
+    '/',
+    response_model=CourseDisplay,
+    status_code=status.HTTP_201_CREATED
+)
 def create_course(
         request: CourseBase,
         db: Session = Depends(get_db),
-        current_user: UserBase = Depends(get_current_user)
+        current_user: CurrentUser = Depends(get_current_user)
 ):
-    if "mentoverse" in request.title or "mentoverse" in request.description:
-        raise MentoverseException("Don't use mentoverse platform name in your course!")
-    user = db_user.get_user_by_username(db, current_user.username)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Couldn't find a user for the token")
-    return db_course.create_course(db, request, user.id)
+    def action():
+        return db_course.create_course(db, request, current_user.id)
+    return try_db_action(action)
 
 
 # Edit course
@@ -35,47 +35,51 @@ def put_course(
         id: int,
         request: CourseBase,
         db: Session = Depends(get_db),
-        current_user: UserBase = Depends(get_current_user)
+        current_user: CurrentUser = Depends(get_current_user)
 ):
-    user = db_user.get_user_by_username(db, current_user.username)
-    if not _is_user_owner_of_course_id(id, user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    db_course.update_course_by_request(db, id, request)
-    return db_course.get_course(db, id)
+    def action():
+        if not _is_user_owner_of_course_id(db, id, current_user.id):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        return db_course.update_course_by_request(db, id, request)
+    return try_db_action(action)
 
 
 @router.patch('/{id}', response_model=CourseDisplay)
 def patch_course(
         id: int,
-        request: CourseBase,
+        request: CourseBaseForPatch,
         db: Session = Depends(get_db),
-        current_user: UserBase = Depends(get_current_user)
+        current_user: CurrentUser = Depends(get_current_user)
 ):
-    user = db_user.get_user_by_username(db, current_user.username)
-    if not _is_user_owner_of_course_id(id, user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    updates = request.model_dump(exclude_unset=True)
-    db_course.update_course_by_dict(db, id, updates)
-    return db_course.get_course(db, id)
+    def action():
+        if not _is_user_owner_of_course_id(db, id, current_user.id):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        updates = request.model_dump(exclude_none=True)
+        db_course.update_course_by_dict(db, id, updates)
+        return db_course.get_course(db, id)
+    return try_db_action(action)
 
 
 # Get course with id
-@router.get('/{id}', response_model=Optional[CourseDisplay])
+@router.get('/{id}', response_model=CourseDisplay)
 def get_course_by_id(id: int, db: Session = Depends(get_db)):
-    return db_course.get_course(db, id)
+    def action():
+        return db_course.get_course(db, id)
+    return try_db_action(action)
 
 
 # Delete course
-@router.delete('/{id}')
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_course(
         id: int,
         db: Session = Depends(get_db),
-        current_user: UserBase = Depends(get_current_user)
+        current_user: CurrentUser = Depends(get_current_user)
 ):
-    user = db_user.get_user_by_username(db, current_user.username)
-    if not _is_user_owner_of_course_id(id, user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    return db_course.delete_course(db, id)
+    def action():
+        if not _is_user_owner_of_course_id(db, id, current_user.id):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        db_course.delete_course(db, id)
+    try_db_action(action)
 
 
 # Get all courses
@@ -90,10 +94,7 @@ def get_courses_by_owner_id(owner_id: int, db: Session = Depends(get_db)):
     return db_course.get_courses_by_owner_id(db, owner_id)
 
 
-def _map_user_courses_to_ids(course: Course):
-    return course.id
-
-
-def _is_user_owner_of_course_id(course_id: int, user: UserDisplay):
-    courses_ids = map(_map_user_courses_to_ids, user.courses)
-    return course_id in courses_ids
+def _is_user_owner_of_course_id(db: Session, course_id: int, user_id: int):
+    db_courses = db_course.get_courses_by_owner_id(db, user_id)
+    filtered = list(filter(lambda x: x if x.id == course_id else None, db_courses))
+    return len(filtered) > 0

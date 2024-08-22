@@ -17,6 +17,17 @@ ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
+class CurrentUser:
+    id: int
+    username: str
+    email: str
+
+    def __init__(self, id: int, username: str, email: str):
+        self.id = id
+        self.username = username
+        self.email = email
+
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -47,4 +58,4 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
 
-    return user
+    return CurrentUser(user.id, user.username, user.email)
