@@ -1,8 +1,7 @@
-from fastapi import FastAPI, Request
 from router import user, course, appointments
+from fastapi import FastAPI
 from db import models
 from db.database import engine
-from fastapi.responses import JSONResponse
 from auth import authentication
 import uvicorn
 
