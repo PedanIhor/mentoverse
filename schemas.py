@@ -53,22 +53,22 @@ class CourseDisplay(BaseModel):
         from_attributes = True
 
 
+class AppointmentBaseForPatch(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    starts: Optional[str] = None
+    ends: Optional[str] = None
+    tutor_id: Optional[int] = None
+    students_ids: Optional[List[int]] = None
+
+
 class AppointmentBase(BaseModel):
     title: str
     description: str
-    starts: int
-    ends: int
+    starts: str
+    ends: str
     tutor_id: int
     students_ids: List[int]
-
-
-class UserInAppointmentDisplay(BaseModel):
-    id: int
-    username: str
-    email: str
-
-    class Config:
-        from_attributes = True
 
 
 class AppointmentDisplay(BaseModel):
