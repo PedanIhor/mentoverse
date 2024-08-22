@@ -3,10 +3,17 @@ from fastapi import HTTPException, status
 
 
 class ExceptionsConverter:
+    exception: DbException
 
-    def db_to_http(self, e: DbException):
-        match e.reason:
+    def __init__(self, e: DbException):
+        super().__init__()
+        self.exception = e
+
+    def http(self):
+        match self.exception.reason:
             case DbExceptionReason.NOT_FOUND:
-                return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.detail)
+                return HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                     detail=self.exception.detail)
             case DbExceptionReason.FORBIDDEN:
-                return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=e.detail)
+                return HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                     detail=self.exception.detail)
