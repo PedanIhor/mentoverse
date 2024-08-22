@@ -112,3 +112,29 @@ def _map_patch_model(db: Session, id: int, request: AppointmentBaseForPatch):
 
     return updates
 
+
+def assign_student_for_appointment(db: Session, appointment_id: int, students_id: int):
+    appointment = db.query(DbAppointment).filter(DbAppointment.id == appointment_id).first()
+    student = db.query(DbUser).filter(DbUser.id == students_id).first()
+    if student in appointment.students:
+        raise DbException(DbExceptionReason.INTEGRITY, detail="The student has been already assigned!")
+    appointment.students.append(student)
+    db.commit()
+    return appointment
+
+
+def unassign_student_for_appointment(db: Session, appointment_id: int, student_id: int):
+    appointment = db.query(DbAppointment).filter(DbAppointment.id == appointment_id).first()
+    if not appointment:
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
+            detail=f"Unable to find an appointment with appointment_id={appointment_id}"
+        )
+    student = db.query(DbUser).filter(DbUser.id == student_id).first()
+    if not student:
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
+            detail=f"Unable to find a student with student_id={student_id}"
+        )
+    appointment.students.remove(student)
+    db.commit()

@@ -80,3 +80,8 @@ class AppointmentDisplay(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AppointmentParticipationBase(BaseModel):
+    appointment_id: int
+    student_id: int

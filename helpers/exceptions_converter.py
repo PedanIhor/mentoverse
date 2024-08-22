@@ -17,3 +17,6 @@ class ExceptionsConverter:
             case DbExceptionReason.FORBIDDEN:
                 return HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                      detail=self.exception.detail)
+            case DbExceptionReason.INTEGRITY:
+                return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                     detail=self.exception.detail)
