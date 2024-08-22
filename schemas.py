@@ -34,8 +34,13 @@ class UserDisplay(BaseModel):
 
 
 class CourseBase(BaseModel):
-    title: str | None
-    description: str | None
+    title: str
+    description: str
+
+
+class CourseBaseForPatch(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
 
 
 class CourseDisplay(BaseModel):

@@ -1,7 +1,7 @@
 from db import db_course
 from db.database import get_db
 from typing import List
-from schemas import CourseBase, CourseDisplay, UserBase, UserDisplay, Course
+from schemas import CourseBase, CourseDisplay, CourseBaseForPatch
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user, CurrentUser
@@ -40,21 +40,21 @@ def put_course(
     def action():
         if not _is_user_owner_of_course_id(db, id, current_user.id):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-        db_course.update_course_by_request(db, id, request)
+        return db_course.update_course_by_request(db, id, request)
     return try_db_action(action)
 
 
 @router.patch('/{id}', response_model=CourseDisplay)
 def patch_course(
         id: int,
-        request: CourseBase,
+        request: CourseBaseForPatch,
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
     def action():
         if not _is_user_owner_of_course_id(db, id, current_user.id):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-        updates = request.model_dump(exclude_unset=True)
+        updates = request.model_dump(exclude_none=True)
         db_course.update_course_by_dict(db, id, updates)
         return db_course.get_course(db, id)
     return try_db_action(action)

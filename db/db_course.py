@@ -53,12 +53,14 @@ def update_course_with_changes(db: Session, course: Query, updates: dict[str, an
 
 def update_course_by_dict(db: Session, id: int, updates: dict[str, any]):
     course_query = db.query(DbCourse).filter(DbCourse.id == id)
-    if not course_query.first():
+    entity = course_query.first()
+    if not entity:
         raise DbException(
             DbExceptionReason.NOT_FOUND,
             detail=f"Course with id: {id} not found!"
         )
     update_course_with_changes(db, course_query, updates)
+    return entity
 
 
 def update_course_by_request(db: Session, id: int, request: CourseBase):
@@ -68,7 +70,8 @@ def update_course_by_request(db: Session, id: int, request: CourseBase):
             DbExceptionReason.NOT_FOUND,
             detail=f"Course with id: {id} not found!"
         )
-    return update_course_with_changes(db, course_query, {
+    update_course_with_changes(db, course_query, {
         DbCourse.title: request.title,
         DbCourse.description: request.description
     })
+    return course_query.first()
