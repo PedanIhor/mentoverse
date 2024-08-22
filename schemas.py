@@ -27,7 +27,6 @@ class UserDisplay(BaseModel):
     id: int
     username: str
     email: str
-    courses: List[Course] = []
 
     class Config:
         from_attributes = True
@@ -78,7 +77,6 @@ class AppointmentDisplay(BaseModel):
     starts: str
     ends: str
     tutor_id: int
-    students: List[UserInAppointmentDisplay]
 
     class Config:
         from_attributes = True

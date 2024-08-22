@@ -7,16 +7,15 @@ from sqlalchemy.orm import (
     mapped_column,
     DeclarativeBase,
 )
-from sqlalchemy import Table, Column, TIMESTAMP
+from sqlalchemy import Table, Column
 from db.db_exceptions import DbException, DbExceptionReason
-from typing import List
 
 
 class Base(DeclarativeBase):
     pass
 
 
-appointments_students_table = Table(
+appointments_students_table=Table(
     'users_appointments',
     Base.metadata,
     Column("appointment_id", ForeignKey('appointments.id'), primary_key=True),
@@ -27,13 +26,14 @@ appointments_students_table = Table(
 class DbUser(Base):
     __tablename__ = 'users'
     id = mapped_column(Integer, primary_key=True, index=True)
-    username = mapped_column(String, index=True, unique=True)
-    email = mapped_column(String, index=True, unique=True)
-    password = mapped_column(String)
+    username = Column(String, index=True, unique=True)
+    email = Column(String, index=True, unique=True)
+    password = Column(String)
     courses = relationship("DbCourse", back_populates="owner")
-    appointments: Mapped[List['DbAppointment']] = relationship(
+    appointments = relationship(
+        'DbAppointment',
         secondary=appointments_students_table,
-        back_populates="students"
+        back_populates="students",
     )
 
 
@@ -42,10 +42,11 @@ class DbAppointment(Base):
     id = mapped_column(Integer, primary_key=True, index=True)
     title = mapped_column(String)
     description = mapped_column(String)
-    starts = mapped_column(TIMESTAMP)
-    ends = mapped_column(TIMESTAMP)
+    starts = mapped_column(String)
+    ends = mapped_column(String)
     tutor_id = mapped_column(Integer, ForeignKey('users.id'), index=True)
-    students: Mapped[List['DbUser']] = relationship(
+    students = relationship(
+        'DbUser',
         secondary=appointments_students_table,
         back_populates="appointments"
     )
