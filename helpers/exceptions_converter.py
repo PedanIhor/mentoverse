@@ -10,13 +10,15 @@ class ExceptionsConverter:
         self.exception = e
 
     def http(self):
+        exc: HTTPException = status.HTTP_500_INTERNAL_SERVER_ERROR
         match self.exception.reason:
             case DbExceptionReason.NOT_FOUND:
-                return HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                exc = HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                      detail=self.exception.detail)
             case DbExceptionReason.FORBIDDEN:
-                return HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                exc = HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                                      detail=self.exception.detail)
-            case DbExceptionReason.INTEGRITY:
-                return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+            case DbExceptionReason.ACTION_IMPOSSIBLE:
+                exc = HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                      detail=self.exception.detail)
+        return exc
