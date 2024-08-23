@@ -5,7 +5,7 @@ class DbExceptionReason(Enum):
     NOT_FOUND = 1
     FORBIDDEN = 2
     VALIDATION = 3
-    INTEGRITY = 4
+    ACTION_IMPOSSIBLE = 4
 
 
 class DbException(Exception):

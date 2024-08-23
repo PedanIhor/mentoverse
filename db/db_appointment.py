@@ -117,7 +117,7 @@ def assign_student_for_appointment(db: Session, appointment_id: int, students_id
     appointment = db.query(DbAppointment).filter(DbAppointment.id == appointment_id).first()
     student = db.query(DbUser).filter(DbUser.id == students_id).first()
     if student in appointment.students:
-        raise DbException(DbExceptionReason.INTEGRITY, detail="The student has been already assigned!")
+        raise DbException(DbExceptionReason.ACTION_IMPOSSIBLE, detail="The student has been already assigned!")
     appointment.students.append(student)
     db.commit()
     return appointment

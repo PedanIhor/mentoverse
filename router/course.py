@@ -5,7 +5,7 @@ from schemas import CourseBase, CourseDisplay, CourseBaseForPatch
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user, CurrentUser
-from helpers.db_action_wrapper import try_db_action
+from helpers.exceptions_converter import exceptions_converter
 
 router = APIRouter(
     prefix='/course',
@@ -19,67 +19,62 @@ router = APIRouter(
     response_model=CourseDisplay,
     status_code=status.HTTP_201_CREATED
 )
+@exceptions_converter
 def create_course(
         request: CourseBase,
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    def action():
-        return db_course.create_course(db, request, current_user.id)
-    return try_db_action(action)
+    return db_course.create_course(db, request, current_user.id)
 
 
 # Edit course
 @router.put('/{id}', response_model=CourseDisplay)
+@exceptions_converter
 def put_course(
         id: int,
         request: CourseBase,
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    def action():
-        if not _is_user_owner_of_course_id(db, id, current_user.id):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-        return db_course.update_course_by_request(db, id, request)
-    return try_db_action(action)
+    if not _is_user_owner_of_course_id(db, id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    return db_course.update_course_by_request(db, id, request)
 
 
 @router.patch('/{id}', response_model=CourseDisplay)
+@exceptions_converter
 def patch_course(
         id: int,
         request: CourseBaseForPatch,
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    def action():
-        if not _is_user_owner_of_course_id(db, id, current_user.id):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-        updates = request.model_dump(exclude_none=True)
-        db_course.update_course_by_dict(db, id, updates)
-        return db_course.get_course(db, id)
-    return try_db_action(action)
+    if not _is_user_owner_of_course_id(db, id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    updates = request.model_dump(exclude_none=True)
+    db_course.update_course_by_dict(db, id, updates)
+    return db_course.get_course(db, id)
 
 
 # Get course with id
 @router.get('/{id}', response_model=CourseDisplay)
+@exceptions_converter
 def get_course_by_id(id: int, db: Session = Depends(get_db)):
-    def action():
-        return db_course.get_course(db, id)
-    return try_db_action(action)
+    return db_course.get_course(db, id)
 
 
 # Delete course
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
+@exceptions_converter
 def delete_course(
         id: int,
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    def action():
-        if not _is_user_owner_of_course_id(db, id, current_user.id):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-        db_course.delete_course(db, id)
-    try_db_action(action)
+    if not _is_user_owner_of_course_id(db, id, current_user.id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    db_course.delete_course(db, id)
 
 
 # Get all courses
