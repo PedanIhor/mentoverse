@@ -85,3 +85,24 @@ class AppointmentDisplay(BaseModel):
 class AppointmentParticipationBase(BaseModel):
     appointment_id: int
     student_id: int
+
+
+class ReviewBase(BaseModel):
+    course_id: int
+    author_id: int
+    title: str
+    comment: str
+    rating: int
+
+
+class ReviewDisplay(BaseModel):
+    id: int
+    course_id: int
+    author_id: int
+    title: str
+    comment: str
+    rating: int
+
+    class ConfigDict:
+        from_attributes = True
+
