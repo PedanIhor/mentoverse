@@ -21,11 +21,13 @@ class CurrentUser:
     id: int
     username: str
     email: str
+    reviews_ids: list[int]
 
-    def __init__(self, id: int, username: str, email: str):
+    def __init__(self, id: int, username: str, email: str, review_ids: list[int]):
         self.id = id
         self.username = username
         self.email = email
+        self.reviews_ids = review_ids
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -58,4 +60,9 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
 
-    return CurrentUser(user.id, user.username, user.email)
+    return CurrentUser(
+        user.id,
+        user.username,
+        user.email,
+        list(map(lambda x: x.id, user.reviews))
+    )
