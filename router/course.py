@@ -37,7 +37,7 @@ def put_course(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if not _is_user_owner_of_course_id(db, id, current_user.id):
+    if not _is_user_owner_of_course_id(db, id, current_user.id) and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return db_course.update_course_by_request(db, id, request)
 
@@ -50,7 +50,7 @@ def patch_course(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if not _is_user_owner_of_course_id(db, id, current_user.id):
+    if not _is_user_owner_of_course_id(db, id, current_user.id) and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     updates = request.model_dump(exclude_none=True)
     db_course.update_course_by_dict(db, id, updates)
@@ -72,7 +72,7 @@ def delete_course(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if not _is_user_owner_of_course_id(db, id, current_user.id):
+    if not _is_user_owner_of_course_id(db, id, current_user.id) and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     db_course.delete_course(db, id)
 

@@ -41,7 +41,7 @@ def update_user(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if id is not current_user.id:
+    if id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     else:
         return db_user.update_user(db, id, request)
@@ -55,7 +55,7 @@ def update_user_by_patch(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if id is not current_user.id:
+    if id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     else:
         db_user.update_by_patch(db, id, request)
@@ -70,7 +70,7 @@ def update_password(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if user_id is not current_user.id:
+    if user_id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     else:
         return db_user.update_user_password(db, user_id, password)
@@ -79,8 +79,8 @@ def update_password(
 # Delete user
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 @exceptions_converter
-def delete_user(id: int, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
-    if id is not current_user.id:
+def delete_user(id: int, db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)):
+    if id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     else:
-        db_user.delete_user(db, current_user.id)
+        db_user.delete_user(db, id)
