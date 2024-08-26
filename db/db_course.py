@@ -1,7 +1,8 @@
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.query import Query
 from db.models import DbCourse
-from schemas import CourseBase
+from helpers.pagination import PageParams, PagedResponseSchema, paginate
+from schemas import CourseBase, CourseDisplay
 from db.db_exceptions import DbException, DbExceptionReason
 
 
@@ -17,8 +18,8 @@ def create_course(db: Session, request: CourseBase, owner_id: int):
     return course
 
 
-def get_all_courses(db: Session):
-    return db.query(DbCourse).all()
+def get_all_courses(db: Session, page_params: PageParams):
+    return paginate(page_params, db.query(DbCourse))
 
 
 def get_courses_by_owner_id(db: Session, owner_id: int):

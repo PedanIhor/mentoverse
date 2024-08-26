@@ -1,6 +1,7 @@
 from db import db_course
 from db.database import get_db
 from typing import List
+from helpers.pagination import PagedResponseSchema, PageParams
 from schemas import CourseBase, CourseDisplay, CourseBaseForPatch
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -78,9 +79,9 @@ def delete_course(
 
 
 # Get all courses
-@router.get("/", response_model=List[CourseDisplay])
-def get_all_courses(db: Session = Depends(get_db)):
-    return db_course.get_all_courses(db)
+@router.get("/", response_model=PagedResponseSchema[CourseDisplay])
+def get_all_courses(page_params: PageParams = Depends(), db: Session = Depends(get_db)):
+    return db_course.get_all_courses(db, page_params)
 
 
 # Get all courses by owner id
