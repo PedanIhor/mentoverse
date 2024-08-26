@@ -8,7 +8,7 @@ class Course(BaseModel):
     title: str
     description: str
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -31,7 +31,7 @@ class UserDisplay(BaseModel):
     email: str
     admin: bool
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -51,7 +51,7 @@ class CourseDisplay(BaseModel):
     description: str
     owner_id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -81,7 +81,7 @@ class AppointmentDisplay(BaseModel):
     ends: str
     tutor_id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
