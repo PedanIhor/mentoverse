@@ -1,6 +1,7 @@
 from sqlalchemy.orm.session import Session
 from db.hash import Hash
 from db.models import DbUser
+from helpers.pagination import PageParams, paginate
 from schemas import UserBase, UserBaseForPatch
 from db.db_exceptions import DbException, DbExceptionReason
 
@@ -18,8 +19,8 @@ def create_user(db: Session, request: UserBase):
     return new_user
 
 
-def get_all_users(db: Session):
-    return db.query(DbUser).all()
+def get_all_users(db: Session, page_params: PageParams):
+    return paginate(page_params, db.query(DbUser))
 
 
 def get_user_by_id(db: Session, id: int):

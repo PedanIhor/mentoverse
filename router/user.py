@@ -1,6 +1,6 @@
 from db import db_user
 from db.database import get_db
-from typing import List
+from helpers.pagination import PagedResponseSchema, PageParams
 from schemas import UserBase, UserDisplay, UserBaseForPatch
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
@@ -20,9 +20,9 @@ def create_user(request: UserBase, db: Session = Depends(get_db)):
 
 
 # Read all users
-@router.get('/', response_model=List[UserDisplay])
-def get_all_users(db: Session = Depends(get_db)):
-    return db_user.get_all_users(db)
+@router.get('/', response_model=PagedResponseSchema[UserDisplay])
+def get_all_users(page_params: PageParams = Depends(), db: Session = Depends(get_db)):
+    return db_user.get_all_users(db, page_params)
 
 
 # Read user with id
