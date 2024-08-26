@@ -30,6 +30,7 @@ class DbUser(Base):
     email = Column(String, index=True, unique=True)
     password = Column(String)
     courses = relationship("DbCourse", back_populates="owner")
+    reviews = relationship('DbReview', back_populates='author')
     appointments = relationship(
         'DbAppointment',
         secondary=appointments_students_table,
@@ -70,4 +71,23 @@ class DbCourse(Base):
     title = mapped_column(String)
     description = mapped_column(String)
     owner_id = mapped_column(Integer, ForeignKey('users.id'), index=True)
-    owner: Mapped["DbUser"] = relationship(back_populates="courses")
+    owner: Mapped["DbUser"] = relationship(back_populates='courses')
+    reviews = relationship('DbReview', back_populates='course')
+
+
+class DbReview(Base):
+    __tablename__ = 'reviews'
+    id = Column(Integer, primary_key=True, index=True)
+    rating = Column(Integer)
+    author_id = Column(Integer, ForeignKey('users.id'), index=True)
+    author = relationship('DbUser', back_populates='reviews')
+    course_id = Column(Integer, ForeignKey('courses.id'), index=True)
+    course = relationship('DbCourse', back_populates='reviews')
+    title = Column(String)
+    comment = Column(String)
+
+    @validates('rating')
+    def validate_rating(self, _, value):
+        if value < 1 or value > 5:
+            raise DbException(DbExceptionReason.VALIDATION, detail="Rating must be from 1 to 5")
+        return value
