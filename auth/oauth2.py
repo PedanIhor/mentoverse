@@ -19,12 +19,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 class CurrentUser:
     id: int
+    admin: bool
     username: str
     email: str
     reviews_ids: list[int]
 
-    def __init__(self, id: int, username: str, email: str, review_ids: list[int]):
+    def __init__(self, id: int, admin: bool, username: str, email: str, review_ids: list[int]):
         self.id = id
+        self.admin = admin
         self.username = username
         self.email = email
         self.reviews_ids = review_ids
@@ -62,6 +64,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     return CurrentUser(
         user.id,
+        user.admin,
         user.username,
         user.email,
         list(map(lambda x: x.id, user.reviews))

@@ -25,7 +25,7 @@ def get_reviews(course_id: int,
 def review_course(request: ReviewBase,
                   db: Session = Depends(get_db),
                   current_user: CurrentUser = Depends(get_current_user)):
-    if request.author_id is not current_user.id:
+    if request.author_id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return db_review.create_review(db, request)
 
@@ -36,7 +36,7 @@ def edit_review(id: int,
                 request: ReviewBase,
                 db: Session = Depends(get_db),
                 current_user: CurrentUser = Depends(get_current_user)):
-    if request.author_id is not current_user.id:
+    if request.author_id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return db_review.update_review(db, id, request)
 
@@ -46,6 +46,6 @@ def edit_review(id: int,
 def delete_review(id: int,
                   db: Session = Depends(get_db),
                   current_user: CurrentUser = Depends(get_current_user)):
-    if id not in current_user.reviews_ids:
+    if id not in current_user.reviews_ids and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     db_review.delete_review(db, id)

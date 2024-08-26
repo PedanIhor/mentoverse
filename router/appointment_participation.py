@@ -20,7 +20,7 @@ def create_appointment_participation(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if current_user.id is not request.student_id:
+    if current_user.id is not request.student_id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return db_appointment.assign_student_for_appointment(
         db, request.appointment_id, request.student_id
@@ -36,7 +36,7 @@ def delete_student_participation(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user),
 ):
-    if current_user.id is not student_id:
+    if current_user.id is not student_id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     db_appointment.unassign_student_for_appointment(
         db, appointment_id, student_id

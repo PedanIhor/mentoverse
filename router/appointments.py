@@ -41,7 +41,7 @@ def create_appointment(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
-    if current_user.id is not request.tutor_id:
+    if current_user.id is not request.tutor_id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return db_appointment.create_appointment(db, request)
 

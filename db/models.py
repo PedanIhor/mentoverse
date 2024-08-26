@@ -1,5 +1,5 @@
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, String
+from sqlalchemy.sql.sqltypes import Integer, String, Boolean
 from sqlalchemy.orm import (
     relationship,
     Mapped,
@@ -28,6 +28,7 @@ class DbUser(Base):
     id = mapped_column(Integer, primary_key=True, index=True)
     username = Column(String, index=True, unique=True)
     email = Column(String, index=True, unique=True)
+    admin = Column(Boolean)
     password = Column(String)
     courses = relationship("DbCourse", back_populates="owner")
     reviews = relationship('DbReview', back_populates='author')
@@ -71,7 +72,7 @@ class DbCourse(Base):
     title = mapped_column(String)
     description = mapped_column(String)
     owner_id = mapped_column(Integer, ForeignKey('users.id'), index=True)
-    owner: Mapped["DbUser"] = relationship(back_populates='courses')
+    owner = relationship('DbUser', back_populates='courses')
     reviews = relationship('DbReview', back_populates='course')
 
 
