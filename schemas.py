@@ -106,3 +106,15 @@ class ReviewDisplay(BaseModel):
     class ConfigDict:
         from_attributes = True
 
+
+class CommentDisplay(BaseModel):
+    id: int
+    title: str
+    description: str
+    user_id: int
+
+
+class CommentBase(BaseModel):
+    title: str
+    description: str
+    user_id: int

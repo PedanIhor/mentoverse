@@ -32,6 +32,7 @@ class DbUser(Base):
     password = Column(String)
     courses = relationship("DbCourse", back_populates="owner")
     reviews = relationship('DbReview', back_populates='author')
+    comments = relationship("DbComment", back_populates="user")
     appointments = relationship(
         'DbAppointment',
         secondary=appointments_students_table,
@@ -92,3 +93,12 @@ class DbReview(Base):
         if value < 1 or value > 5:
             raise DbException(DbExceptionReason.VALIDATION, detail="Rating must be from 1 to 5")
         return value
+
+
+class DbComment(Base):
+    __tablename__ = 'comments'
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    description = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship("DbUser", back_populates='comments')
