@@ -19,4 +19,17 @@ def test_auth_error():
 
 
 def test_auth_success():
-    pass
+    response = client.post("/token", data={"username": "y", "password": "y"})
+    access_token = response.json().get("access_token")
+    assert access_token
+
+
+def test_post_course():
+    test_auth_success()
+    response = client.post(
+        "/course/",
+        data={
+            "title": "test_string",
+            "description": "test_string"
+        }
+    )
