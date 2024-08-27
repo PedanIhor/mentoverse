@@ -1,4 +1,3 @@
-from fastapi import HTTPException, status
 from sqlalchemy.orm.session import Session
 from db.models import DbComment
 from schemas import CommentBase
@@ -30,23 +29,23 @@ def get_comment_by_id(id: int, db: Session):
 
 # get comment by user id
 def get_comment_by_user_id(db: Session, user_id: Optional[int] = None):
-    commentQuery = db.query(DbComment)
+    comment_query = db.query(DbComment)
 
     if user_id is not None:
-        commentQuery = commentQuery.filter(DbComment.user_id == user_id)
+        comment_query = comment_query.filter(DbComment.user_id == user_id)
     elif not user_id:
         raise DbException(DbExceptionReason.NOT_FOUND, detail=f"User id {user_id} not found!",
         )
 
-    return commentQuery.all()
+    return comment_query.all()
 
 
 # update comment
 def update_comment(db: Session, id: int, request: CommentBase):
     comment = db.query(DbComment).filter(DbComment.id == id)
     if not comment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
             detail=f"User with id {id} not found!",
         )
 
@@ -54,7 +53,6 @@ def update_comment(db: Session, id: int, request: CommentBase):
         {
             DbComment.title: request.title,
             DbComment.description: request.description,
-            DbComment.user_id: request.user_id,
         }
     )
     db.commit()
@@ -65,8 +63,8 @@ def update_comment(db: Session, id: int, request: CommentBase):
 def delete_comment(db: Session, id: int):
     comment = db.query(DbComment).filter(DbComment.id == id).first()
     if not comment:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+        raise DbException(
+            DbExceptionReason.NOT_FOUND,
             detail=f"User with id {id} not found!",
         )
     db.delete(comment)
