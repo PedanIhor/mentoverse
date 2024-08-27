@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from router import user, course, appointments, appointment_participation, review
+from router import user, course, appointments, appointment_participation, review, comment
 from db import models
 from db.database import engine
 from auth import authentication
@@ -12,6 +12,7 @@ app.include_router(course.router)
 app.include_router(appointments.router)
 app.include_router(appointment_participation.router)
 app.include_router(review.router)
+app.include_router(comment.router)
 
 
 models.Base.metadata.create_all(engine)
