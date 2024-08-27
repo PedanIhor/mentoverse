@@ -16,17 +16,20 @@ class UserBase(BaseModel):
     username: str
     email: str
     password: str
+    admin: Optional[bool] = None
 
 
 class UserBaseForPatch(BaseModel):
     username: Optional[str] = None
     email: Optional[str] = None
+    admin: Optional[bool] = None
 
 
 class UserDisplay(BaseModel):
     id: int
     username: str
     email: str
+    admin: bool
 
     class Config:
         from_attributes = True

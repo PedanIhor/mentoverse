@@ -16,6 +16,8 @@ router = APIRouter(
 # Create user
 @router.post('/', response_model=UserDisplay, status_code=status.HTTP_201_CREATED)
 def create_user(request: UserBase, db: Session = Depends(get_db)):
+    if request.admin is True:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return db_user.create_user(db, request)
 
 
@@ -41,10 +43,15 @@ def update_user(
         db: Session = Depends(get_db),
         current_user: CurrentUser = Depends(get_current_user)
 ):
+    # check if updated user is the current user or the current user is an admin
     if id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    else:
-        return db_user.update_user(db, id, request)
+
+    # check if (when the admin flag s True) and the current user is not an admin
+    if request.admin is True and not current_user.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    return db_user.update_user(db, id, request)
 
 
 @router.patch('/{id}', response_model=UserDisplay)
@@ -57,9 +64,11 @@ def update_user_by_patch(
 ):
     if id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    else:
-        db_user.update_by_patch(db, id, request)
-        return db_user.get_user_by_id(db, id)
+
+    if request.admin is True and not current_user.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    return db_user.update_by_patch(db, id, request)
 
 
 @router.post('/{user_id}/password', response_model=UserDisplay)
@@ -79,7 +88,9 @@ def update_password(
 # Delete user
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 @exceptions_converter
-def delete_user(id: int, db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)):
+def delete_user(id: int,
+                db: Session = Depends(get_db),
+                current_user: CurrentUser = Depends(get_current_user)):
     if id is not current_user.id and not current_user.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     else:
