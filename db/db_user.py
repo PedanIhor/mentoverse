@@ -56,11 +56,16 @@ def update_user_with_changes(db: Session, id: int, changes: dict):
 
 
 def update_user(db: Session, id: int, request: UserBase):
-    return update_user_with_changes(db, id, {
+    changes = {
         DbUser.username: request.username,
         DbUser.email: request.email,
         DbUser.password: Hash.bcrypt(request.password),
-    })
+    }
+
+    if request.admin is not None:
+        changes[DbUser.admin] = request.admin
+
+    return update_user_with_changes(db, id, changes)
 
 
 def update_by_patch(db: Session, id: int, request: UserBaseForPatch):
@@ -92,5 +97,8 @@ def map_patch_model(model: UserBaseForPatch):
 
     if model.email is not None:
         updates[DbUser.email] = model.email
+
+    if model.admin is not None:
+        updates[DbUser.admin] = model.admin
 
     return updates
