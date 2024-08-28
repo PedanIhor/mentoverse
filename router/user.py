@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user, CurrentUser
 from helpers.exceptions_converter import exceptions_converter
+from custom_log import log
 
 router = APIRouter(
     prefix='/user',
@@ -17,7 +18,9 @@ router = APIRouter(
 # Create user
 @router.post('/', response_model=UserDisplay, status_code=status.HTTP_201_CREATED)
 def create_user(request: UserBase, db: Session = Depends(get_db)):
+    log("User Router", f"create_user request called. Body = {request}")
     if request.admin is True:
+        log("User Router", f"ERROR: create_user called with admin == True. Body = {request}")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     existing_user = None
