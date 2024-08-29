@@ -6,3 +6,6 @@ bcrypt
 pydantic
 python-multipart
 python-jose
+requests
+pytest
+httpx

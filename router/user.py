@@ -1,11 +1,13 @@
 from db import db_user
 from db.database import get_db
+from db.db_exceptions import DbException
 from helpers.pagination import PagedResponseSchema, PageParams
 from schemas import UserBase, UserDisplay, UserBaseForPatch
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user, CurrentUser
 from helpers.exceptions_converter import exceptions_converter
+from custom_log import log
 
 router = APIRouter(
     prefix='/user',
@@ -16,8 +18,20 @@ router = APIRouter(
 # Create user
 @router.post('/', response_model=UserDisplay, status_code=status.HTTP_201_CREATED)
 def create_user(request: UserBase, db: Session = Depends(get_db)):
+    log("User Router", f"create_user request called. Body = {request}")
     if request.admin is True:
+        log("User Router", f"ERROR: create_user called with admin == True. Body = {request}")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    existing_user = None
+    try:
+        existing_user = db_user.get_user_by_username(db, request.username)
+    except DbException as e:
+        pass
+
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with this username is already exist")
+
     return db_user.create_user(db, request)
 
 

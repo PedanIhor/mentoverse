@@ -8,7 +8,7 @@ class Course(BaseModel):
     title: str
     description: str
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -16,7 +16,7 @@ class UserBase(BaseModel):
     username: str
     email: str
     password: str
-    admin: Optional[bool] = None
+    admin: bool = False
 
 
 class UserBaseForPatch(BaseModel):
@@ -31,7 +31,7 @@ class UserDisplay(BaseModel):
     email: str
     admin: bool
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -51,7 +51,7 @@ class CourseDisplay(BaseModel):
     description: str
     owner_id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -81,7 +81,7 @@ class AppointmentDisplay(BaseModel):
     ends: str
     tutor_id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -101,7 +101,7 @@ class ReviewBase(BaseModel):
 class ReviewDisplay(BaseModel):
     id: int
     course_id: int
-    author_id: int
+    author_id: Optional[int]
     title: str
     comment: str
     rating: int
