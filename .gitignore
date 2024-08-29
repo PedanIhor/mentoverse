@@ -1,4 +1,4 @@
 __pycache__
 mentoverse-env
-*.db
+# *.db
 log.txt
