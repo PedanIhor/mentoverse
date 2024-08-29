@@ -40,6 +40,7 @@ class DbUser(Base):
     )
     tutor_appointments = relationship('DbAppointment', back_populates='tutor', cascade='all,delete')
 
+
 class DbAppointment(Base):
     __tablename__ = 'appointments'
     id = mapped_column(Integer, primary_key=True, index=True)
