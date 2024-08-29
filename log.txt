@@ -1,1 +1,0 @@
-User Router: create_user request called. Body = username='o' email='o' password='o' admin=False
