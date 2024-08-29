@@ -85,9 +85,9 @@ def get_all_courses(page_params: PageParams = Depends(), db: Session = Depends(g
 
 
 # Get all courses by owner id
-@router.get('/owner-id/{owner_id}', response_model=List[CourseDisplay])
-def get_courses_by_owner_id(owner_id: int, db: Session = Depends(get_db)):
-    return db_course.get_courses_by_owner_id(db, owner_id)
+@router.get('/owner-id/{owner_id}', response_model=PagedResponseSchema[CourseDisplay])
+def get_courses_by_owner_id(owner_id: int, page_params: PageParams = Depends(), db: Session = Depends(get_db)):
+    return db_course.get_courses_by_owner_id_paginated(db, owner_id, page_params)
 
 
 def _is_user_owner_of_course_id(db: Session, course_id: int, user_id: int):

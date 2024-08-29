@@ -6,7 +6,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///./mentoverse.db"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
-engine.connect().execute(text("PRAGMA foreign_keys=on"))
+engine.connect().execute(text("PRAGMA foreign_keys=on"))  # PRAGMA foreign_keys = ON;
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

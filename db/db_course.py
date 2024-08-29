@@ -22,6 +22,10 @@ def get_all_courses(db: Session, page_params: PageParams):
     return paginate(page_params, db.query(DbCourse))
 
 
+def get_courses_by_owner_id_paginated(db: Session, owner_id: int, page_params: PageParams):
+    return paginate(page_params, db.query(DbCourse).filter(DbCourse.owner_id == owner_id))
+
+
 def get_courses_by_owner_id(db: Session, owner_id: int):
     return db.query(DbCourse).filter(DbCourse.owner_id == owner_id)
 
