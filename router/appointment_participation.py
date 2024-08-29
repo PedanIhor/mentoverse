@@ -3,7 +3,7 @@ from auth.oauth2 import get_current_user, CurrentUser
 from db.database import get_db
 from sqlalchemy.orm import Session
 from db import db_appointment
-from schemas import AppointmentParticipationBase
+from schemas import AppointmentParticipationBase, AppointmentDisplay
 from helpers.exceptions_converter import exceptions_converter
 
 router = APIRouter(
@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 # Adds student to the appointment
-@router.post('/', status_code=status.HTTP_201_CREATED)
+@router.post('/', status_code=status.HTTP_201_CREATED, response_model=AppointmentDisplay)
 @exceptions_converter
 def create_appointment_participation(
         request: AppointmentParticipationBase,

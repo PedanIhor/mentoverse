@@ -101,7 +101,7 @@ class ReviewBase(BaseModel):
 class ReviewDisplay(BaseModel):
     id: int
     course_id: int
-    author_id: int
+    author_id: Optional[int]
     title: str
     comment: str
     rating: int
